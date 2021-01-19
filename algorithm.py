@@ -29,7 +29,7 @@ from sklearn.model_selection import PredefinedSplit
 from autosklearn.metrics import make_scorer
 from sklearn.neural_network import MLPClassifier as skmlp
 
-__all__ = ['ActiveRisingBandit']
+__all__ = ['DUALCore']
 
 name2name = {
         'adaboost': 'AdaboostClassifier',
@@ -104,7 +104,7 @@ def check_val_split(val_id, train_id, lab):
     return True
 
 
-class ActiveRisingBandit(object):
+class DUALCore(object):
     def __init__(self, trial_num,
                  include_alg: List[str],
                  metric=None,

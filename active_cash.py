@@ -9,7 +9,7 @@ import sklearn.datasets
 from autosklearn.metrics import *
 from sklearn.preprocessing import LabelEncoder, minmax_scale
 from extended_models.MLP import MLPClassifier
-from algorithm import ActiveRisingBandit
+from algorithm import DUALCore
 
 __all__ = ['active_learning', 'fetch_dataset', 'random_cash_successive', 'random_cash']
 autosklearn.pipeline.components.classification.add_classifier(MLPClassifier)
@@ -176,17 +176,17 @@ def active_learning(dataset_id, arms_level, al_folds,
         # clean_cash_dir(cash_save_dir=os.path.join(cash_save_dir, f"{dataset_id}_{dataset_name}_{i}"),
         #                cash_tmp_dir=os.path.join(cash_tmp_dir, f"{dataset_id}_{dataset_name}_{i}"))
         train_idx, test_idx, label_ind, unlab_ind = alibox.get_split(i)
-        arb = ActiveRisingBandit(include_alg=arms, dataset_name=f"{dataset_id}_{dataset_name}_{i}",
-                                 trial_num=bandit_trial_budget,
-                                 metric=accuracy,
-                                 time_limit_per_run=smbo_time_limit_per_run,
-                                 output_dir=cash_save_dir,
-                                 tmp_dir=cash_tmp_dir,
-                                 time_limit=None, parallel=parallel,
-                                 n_jobs=None, ml_memory_limit=ml_memory_limit,
-                                 resampling_strategy=resampling_strategy,
-                                 resampling_args=resampling_args, alpha=alpha,
-                                 process_limit=process_limit, X=X, y=y, ava_idx=train_idx)
+        arb = DUALCore(include_alg=arms, dataset_name=f"{dataset_id}_{dataset_name}_{i}",
+                       trial_num=bandit_trial_budget,
+                       metric=accuracy,
+                       time_limit_per_run=smbo_time_limit_per_run,
+                       output_dir=cash_save_dir,
+                       tmp_dir=cash_tmp_dir,
+                       time_limit=None, parallel=parallel,
+                       n_jobs=None, ml_memory_limit=ml_memory_limit,
+                       resampling_strategy=resampling_strategy,
+                       resampling_args=resampling_args, alpha=alpha,
+                       process_limit=process_limit, X=X, y=y, ava_idx=train_idx)
         arb.remove_arm_flag = False
         # Get the data split of one fold experiment
 
@@ -292,17 +292,17 @@ def random_cash(dataset_id, arms_level, al_folds,
     for i in np.arange(start=start_fold, stop=end_fold):
         i = int(i)
         train_idx, test_idx, label_ind, unlab_ind = alibox.get_split(i)
-        arb = ActiveRisingBandit(include_alg=arms, dataset_name=f"{dataset_id}_{dataset_name}_{i}",
-                                 trial_num=bandit_trial_budget,
-                                 metric=accuracy,
-                                 time_limit_per_run=smbo_time_limit_per_run,
-                                 output_dir=cash_save_dir,
-                                 tmp_dir=cash_tmp_dir,
-                                 time_limit=None, parallel=parallel,
-                                 n_jobs=None, ml_memory_limit=ml_memory_limit,
-                                 resampling_strategy=resampling_strategy,
-                                 resampling_args=resampling_args, alpha=alpha,
-                                 process_limit=process_limit, X=X, y=y, ava_idx=train_idx)
+        arb = DUALCore(include_alg=arms, dataset_name=f"{dataset_id}_{dataset_name}_{i}",
+                       trial_num=bandit_trial_budget,
+                       metric=accuracy,
+                       time_limit_per_run=smbo_time_limit_per_run,
+                       output_dir=cash_save_dir,
+                       tmp_dir=cash_tmp_dir,
+                       time_limit=None, parallel=parallel,
+                       n_jobs=None, ml_memory_limit=ml_memory_limit,
+                       resampling_strategy=resampling_strategy,
+                       resampling_args=resampling_args, alpha=alpha,
+                       process_limit=process_limit, X=X, y=y, ava_idx=train_idx)
         arb.remove_arm_flag = False
         # Get the data split of one fold experiment
 
@@ -400,17 +400,17 @@ def random_cash_successive(dataset_id, arms_level, al_folds,
     for i in np.arange(start=start_fold, stop=end_fold):
         i = int(i)
         train_idx, test_idx, label_ind, unlab_ind = alibox.get_split(i)
-        arb = ActiveRisingBandit(include_alg=arms, dataset_name=f"{dataset_id}_{dataset_name}_{i}",
-                                 trial_num=bandit_trial_budget,
-                                 metric=accuracy,
-                                 time_limit_per_run=smbo_time_limit_per_run,
-                                 output_dir=cash_save_dir,
-                                 tmp_dir=cash_tmp_dir,
-                                 time_limit=None, parallel=parallel,
-                                 n_jobs=None, ml_memory_limit=ml_memory_limit,
-                                 resampling_strategy=resampling_strategy,
-                                 resampling_args=resampling_args, alpha=alpha,
-                                 process_limit=process_limit, X=X, y=y, ava_idx=train_idx)
+        arb = DUALCore(include_alg=arms, dataset_name=f"{dataset_id}_{dataset_name}_{i}",
+                       trial_num=bandit_trial_budget,
+                       metric=accuracy,
+                       time_limit_per_run=smbo_time_limit_per_run,
+                       output_dir=cash_save_dir,
+                       tmp_dir=cash_tmp_dir,
+                       time_limit=None, parallel=parallel,
+                       n_jobs=None, ml_memory_limit=ml_memory_limit,
+                       resampling_strategy=resampling_strategy,
+                       resampling_args=resampling_args, alpha=alpha,
+                       process_limit=process_limit, X=X, y=y, ava_idx=train_idx)
         arb.remove_arm_flag = False
         # Get the data split of one fold experiment
 
