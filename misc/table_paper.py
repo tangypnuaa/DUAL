@@ -13,7 +13,7 @@ methods = ["DUAL", "random_CASH", "QueryInstanceCoresetGreedy",
            "QueryInstanceUncertainty", "QueryInstanceRandom", "QueryInstanceQUIRE"]
 
 
-def extract_mat(saver_arr, extract_keys):
+def extract_mat(saver_arr, extract_keys, max_len=300):
     extracted_matrix = []
     for stateio in saver_arr:
         stateio_line = []
@@ -25,6 +25,9 @@ def extract_mat(saver_arr, extract_keys):
                 stateio_line.append(len(state.get_value(extract_keys)))
             else:
                 stateio_line.append(state.get_value(extract_keys))
+
+            if len(stateio_line) >= max_len:
+                break
         extracted_matrix.append(copy.copy(stateio_line))
     return extracted_matrix
 
@@ -110,6 +113,87 @@ def get_mean_curve_value(openml_id, extract_key, ttest_max=True, max_iter=300, s
         ttest_res = [0] * 7
 
     return data_name, mean_arr, std_arr, ttest_res
+
+
+def get_abl(openml_id, extract_key, ttest_max=True, max_iter=300, sampling_flag=True, get_random=True):
+    dataset = fetch_openml(data_id=str(openml_id), data_home=tmp_home + 'openml', return_X_y=False)
+    ins_num = len(dataset.target)
+    fea_num = dataset.data.shape[1]
+    cla_num = len(np.unique(dataset.target))
+    data_name = dataset.details['name']
+    folds = range(10)
+
+    mean_arr = []
+    std_arr = []
+    ttest_arr = []
+    ttest_res = [0] * 4
+
+    # our method
+    for tradeoff in [-1.0, 0.0]:
+        saver_arr = []
+        for fo in folds:
+            saver = pickle.load(
+                open(os.path.join(al_home, str(openml_id) + '_' + data_name, f'EE_f{fo}_tr{tradeoff}.pkl'), 'rb'))
+            saver_arr.append(saver)
+        mat = np.asarray(extract_mat(saver_arr, extract_key, max_iter))
+        if sampling_flag:
+            mat = sampling(mat, every=5)
+        mat = np.mean(mat, axis=1)
+        ttest_arr.append(mat)
+        mean_arr.append(np.mean(mat))
+        std_arr.append(np.std(mat))
+
+    # random cash
+    saver_arr = []
+    for fo in folds:
+        saver = pickle.load(
+            open(os.path.join(al_home, str(openml_id) + '_' + data_name, f'random_f{fo}_rising.pkl'), 'rb'))
+        saver_arr.append(saver)
+    mat = np.asarray(extract_mat(saver_arr, extract_key, max_iter))
+    if sampling_flag:
+        mat = sampling(mat, every=5)
+    mat = np.mean(mat, axis=1)
+    ttest_arr.append(mat)
+    mean_arr.append(np.mean(mat))
+    std_arr.append(np.std(mat))
+
+    # random
+    saver_arr = []
+    for fo in folds:
+        saver = pickle.load(
+            open(os.path.join(al_home, str(openml_id) + '_' + data_name, f'random_f{fo}.pkl'), 'rb'))
+        saver_arr.append(saver)
+    if extract_key == "arms_cand":
+        mean_arr.append(12)
+        std_arr.append(0)
+        ttest_arr.append([12]*10)
+    else:
+        mat = extract_mat(saver_arr, extract_key)
+        mat = np.mean(mat, axis=1)
+        ttest_arr.append(mat)
+        mean_arr.append(np.mean(mat))
+        std_arr.append(np.std(mat))
+
+    results_arr = []
+    win = 1 if ttest_max else -1
+    tie = 0
+    lose = -1 if ttest_max else 1
+    # 1 0.0 2 SMAC suc 3 SMAC
+    mean_val = np.mean(ttest_arr, axis=1)
+    for i in [3, 2, 1]:
+        ttest_one = BaseAnalyser.paired_ttest(ttest_arr[0], ttest_arr[i])
+        if mean_val[i] > mean_val[0]:
+            if ttest_one == 1:
+                results_arr.append(lose)
+            else:
+                results_arr.append(tie)
+        else:
+            if ttest_one == 1:
+                results_arr.append(win)
+            else:
+                results_arr.append(tie)
+    return results_arr      # SMAC, SMAC suc, only exploit
+
 
 
 def to_latex_code(dataset_name, mean_arr, std_arr, ttest_res, type="acc"):

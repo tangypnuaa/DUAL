@@ -10,7 +10,8 @@ al_home = tmp_home + "al_out"
 data_home = tmp_home + "openml"
 datasets = [54, 50, 1501, 36, 40670, 3, 40701, 1489, 28, 4534, 1046, 6]
 methods = ["DUAL", "QueryInstanceCoresetGreedy",
-           "QueryInstanceUncertainty", "QueryInstanceQUIRE", "QueryInstanceRandom", "random_CASH"]
+           "QueryInstanceUncertainty", "QueryInstanceQUIRE",
+           "QueryInstanceRandom", "random_CASH", "inas", "ALMS"]
 
 
 def plot_lc(dataset_id, method_arr: 'list',
@@ -28,12 +29,12 @@ def plot_lc(dataset_id, method_arr: 'list',
     dataset_name, X, y = fetch_dataset(dataset_id, data_home=data_home)
 
     query_budget = 300
-    # if 10000 > len(X) > 3000:
-    #     query_budget = 1000
-    # elif len(X) > 10000:
-    #     query_budget = 2000
-    # else:
-    #     query_budget = 300
+    if 10000 > len(X) > 3000:
+        query_budget = 1000
+    elif len(X) > 10000:
+        query_budget = 1500
+    else:
+        query_budget = 300
 
     fig, ax = plt.subplots()
     ini_pt_arr = []
@@ -67,12 +68,17 @@ def plot_lc(dataset_id, method_arr: 'list',
             x_all.append(x)
             y_all.append(y)
 
+        msize = 6
+        if 1000 >= query_budget > 300:
+            msize = 4
+        elif query_budget > 1000:
+            msize = 3
         ax.plot(np.mean(x_all, axis=0), np.mean(y_all, axis=0), label=methods_label[mth_id],
                 linewidth=methods_linewodth[mth_id],
                 color=methods_color[mth_id],
                 linestyle=methods_lstyle[mth_id],
                 marker=methods_marker[mth_id],
-                markersize=7 if 'DUAL' in mth else 5
+                markersize=msize if 'DUAL' in mth else msize-2
                 )
         if legend:
             ax.legend()
@@ -85,16 +91,16 @@ def plot_lc(dataset_id, method_arr: 'list',
     fig.show()
 
 
-methods_label = ["DUAL", "Coreset", "Entropy", "QUIRE", "Random", "Random w/ CASH"]
-methods_linewodth = [2.8, 1.7, 1.7, 1.7, 1.7, 1.5,
-                     1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.7]
+methods_label = ["DUAL", "Coreset", "Entropy", "QUIRE", "Random", "CASH", "Active-iNAS", "ALMS"]
+methods_linewodth = [2.8, 1.7, 1.7, 1.7, 1.7, 1.7,
+                     1.7, 1.7, 1.7, 1.3, 1.3, 1.3, 1.3, 1.7]
 methods_lstyle = ['-', '--', '--',
                   '--', '--',
                   '--', '--', '--', '--', '--']
 methods_color = ['#F71E35', '#274c5e', '#0080ff',
-                 '#bf209f', '#79bd9a', 'black', 'gray', '#679b00', 'black']
+                 '#bf209f', '#79bd9a', 'gray', 'black', '#679b00', 'black']
 methods_marker = ["D", "d", "^",
-                  "^", "o", "^"]
+                  "^", "o", "^", "o", "^"]
 for did, da in enumerate(datasets):
     plot_lc(dataset_id=da, method_arr=methods,
             isSmooth=True, legend=True, use_accurate_cost=False, budget_array=None,

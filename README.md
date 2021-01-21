@@ -17,7 +17,7 @@ The model search method is implemented based on `auto-sklearn` package, and the 
 * The domain discriminator D is implemented by a 3-layer neural network. (See L201 in `algorithm.py`)
 
 ## Usage
-### Run DUAL and random w/ CASH methods
+### Run DUAL, CASH, ALMS, Active-iNAS methods
 
 * From cmd line (check the tunable parameters in main.py)
 ```
@@ -34,7 +34,7 @@ python pshell.py
 ```
 
 
-### Run compared method
+### Run the other compared methods
 
 You must run DUAL first to save the target model, which is searched on initially labeled data. Then the following cmd could be work. (Please set the parameter `tmp_home` inside.)
 
@@ -56,6 +56,6 @@ python pshell_abl.py
 2. Run the active learning procedures with compared methods according to the *Usage* section.
 3. Plot the learning curves with the code in `misc/plot_paper.py`.
 4. Run the ablation studies with `python pshell_abl.py`
-5. Generate the latex content of table 1 with the code in `misc/table_paper.py`.
+5. Generate the latex content of table 2 and 3 with the code in `misc/table_paper.py`.
 
 

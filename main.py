@@ -4,6 +4,7 @@ import sys
 import time
 import random
 from active_cash import active_learning, random_cash, random_cash_successive
+from ALMS import ALMS_AL, active_inas
 
 if __name__ == "__main__":
     sys.path.append(os.getcwd())
@@ -21,8 +22,8 @@ if __name__ == "__main__":
     parser.add_argument('--tradeoff', type=float, default=-1.0,
                         help="The value of beta, -1.0 means 1/g as presented in the paper.")
     parser.add_argument('--strategy', type=str, default="DUAL", help="['DUAL', 'random', 'random_cash_successive']."
-                                                                   "random means R. w/0 suc. in ablation studies, "
-                                                                   "random_cash_successive means R. CASH.")
+                                                                     "random means R. w/0 suc. in ablation studies, "
+                                                                     "random_cash_successive means R. CASH.")
     # bandit
     parser.add_argument('--arms_level', type=int, default=3, help="How many arms will be used in automl. "
                                                                   "default is 3 (use all arms).")
@@ -91,4 +92,35 @@ if __name__ == "__main__":
                                          enable_removing_iter=args.enable_removing_iter,
                                          alpha=args.alpha, start_fold=args.start_fold, end_fold=args.end_fold,
                                          process_limit=args.process_limit, tradeoff=args.tradeoff)
-
+    elif args.strategy == "ALMS":
+        results = ALMS_AL(dataset_id=args.dataset, arms_level=args.arms_level,
+                          al_folds=args.al_folds,
+                          test_ratio=args.test_ratio, ini_lab_ratio=args.ini_lab_ratio,
+                          data_home=data_save_dir,
+                          bandit_trial_budget=args.bandit_trial_budget,
+                          ml_memory_limit=args.ml_memory_limit,
+                          smbo_time_limit_per_run=args.smbo_time_limit_per_run,
+                          parallel=args.parallel,
+                          query_budget=args.query_budget, al_save_dir=df_al_save_dir,
+                          cash_save_dir=df_cash_save_dir, cash_tmp_dir=df_cash_tmp_dir,
+                          resampling_strategy=args.resampling_strategy,
+                          resampling_args=args.resampling_args,
+                          enable_removing_iter=args.enable_removing_iter,
+                          alpha=args.alpha, start_fold=args.start_fold, end_fold=args.end_fold,
+                          process_limit=args.process_limit, tradeoff=args.tradeoff)
+    elif args.strategy == "inas":
+        results = active_inas(dataset_id=args.dataset, arms_level=args.arms_level,
+                              al_folds=args.al_folds,
+                              test_ratio=args.test_ratio, ini_lab_ratio=args.ini_lab_ratio,
+                              data_home=data_save_dir,
+                              bandit_trial_budget=args.bandit_trial_budget,
+                              ml_memory_limit=args.ml_memory_limit,
+                              smbo_time_limit_per_run=args.smbo_time_limit_per_run,
+                              parallel=args.parallel,
+                              query_budget=args.query_budget, al_save_dir=df_al_save_dir,
+                              cash_save_dir=df_cash_save_dir, cash_tmp_dir=df_cash_tmp_dir,
+                              resampling_strategy=args.resampling_strategy,
+                              resampling_args=args.resampling_args,
+                              enable_removing_iter=args.enable_removing_iter,
+                              alpha=args.alpha, start_fold=args.start_fold, end_fold=args.end_fold,
+                              process_limit=args.process_limit, tradeoff=args.tradeoff)

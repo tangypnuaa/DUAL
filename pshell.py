@@ -13,7 +13,7 @@ if __name__ == "__main__":
     with multiprocessing.dummy.Pool(processes=os.cpu_count()) as pool:
         datasets = [54, 50, 1501, 36, 40670, 3, 40701, 1489, 28, 4534, 1046, 6]
         folds = list(range(10))
-        strategies = ['DUAL', 'random_cash_successive']
+        strategies = ['DUAL', 'random_cash_successive', 'inas', 'ALMS']
         tradeoff = -1.0
         save_home = "/path/to/save_home"
 
