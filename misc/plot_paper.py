@@ -98,7 +98,7 @@ methods_lstyle = ['-', '--', '--',
                   '--', '--',
                   '--', '--', '--', '--', '--']
 methods_color = ['#F71E35', '#274c5e', '#0080ff',
-                 '#bf209f', '#79bd9a', 'gray', 'black', '#679b00', 'black']
+                 '#bf209f', '#79bd9a', 'orange', 'gray', '#666600', 'black']
 methods_marker = ["D", "d", "^",
                   "^", "o", "^", "o", "^"]
 for did, da in enumerate(datasets):

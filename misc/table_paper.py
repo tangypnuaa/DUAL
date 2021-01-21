@@ -126,16 +126,18 @@ def get_abl(openml_id, extract_key, ttest_max=True, max_iter=300, sampling_flag=
     mean_arr = []
     std_arr = []
     ttest_arr = []
-    ttest_res = [0] * 4
+    ttest_res = [0] * 3
 
     # our method
-    for tradeoff in [-1.0, 0.0]:
+    for tradeoff in [-1.0]:
         saver_arr = []
         for fo in folds:
             saver = pickle.load(
                 open(os.path.join(al_home, str(openml_id) + '_' + data_name, f'EE_f{fo}_tr{tradeoff}.pkl'), 'rb'))
+            # saver.recover_workspace(300)
             saver_arr.append(saver)
         mat = np.asarray(extract_mat(saver_arr, extract_key, max_iter))
+        # mat = mat[:, :max_iter]
         if sampling_flag:
             mat = sampling(mat, every=5)
         mat = np.mean(mat, axis=1)
@@ -148,8 +150,10 @@ def get_abl(openml_id, extract_key, ttest_max=True, max_iter=300, sampling_flag=
     for fo in folds:
         saver = pickle.load(
             open(os.path.join(al_home, str(openml_id) + '_' + data_name, f'random_f{fo}_rising.pkl'), 'rb'))
+        # saver.recover_workspace(300)
         saver_arr.append(saver)
     mat = np.asarray(extract_mat(saver_arr, extract_key, max_iter))
+    # mat = mat[:, :max_iter]
     if sampling_flag:
         mat = sampling(mat, every=5)
     mat = np.mean(mat, axis=1)
@@ -162,6 +166,7 @@ def get_abl(openml_id, extract_key, ttest_max=True, max_iter=300, sampling_flag=
     for fo in folds:
         saver = pickle.load(
             open(os.path.join(al_home, str(openml_id) + '_' + data_name, f'random_f{fo}.pkl'), 'rb'))
+        # saver.recover_workspace(300)
         saver_arr.append(saver)
     if extract_key == "arms_cand":
         mean_arr.append(12)
@@ -174,26 +179,20 @@ def get_abl(openml_id, extract_key, ttest_max=True, max_iter=300, sampling_flag=
         mean_arr.append(np.mean(mat))
         std_arr.append(np.std(mat))
 
-    results_arr = []
-    win = 1 if ttest_max else -1
-    tie = 0
-    lose = -1 if ttest_max else 1
-    # 1 0.0 2 SMAC suc 3 SMAC
-    mean_val = np.mean(ttest_arr, axis=1)
-    for i in [3, 2, 1]:
-        ttest_one = BaseAnalyser.paired_ttest(ttest_arr[0], ttest_arr[i])
-        if mean_val[i] > mean_val[0]:
-            if ttest_one == 1:
-                results_arr.append(lose)
-            else:
-                results_arr.append(tie)
-        else:
-            if ttest_one == 1:
-                results_arr.append(win)
-            else:
-                results_arr.append(tie)
-    return results_arr      # SMAC, SMAC suc, only exploit
+    # ttest
+    if ttest_max:
+        mid = np.argmax(mean_arr)
+    else:
+        mid = np.argmin(mean_arr)
+    ttest_res[mid] = 1
+    for iarr, array in enumerate(ttest_arr):
+        if iarr != mid:
+            ttest_one = BaseAnalyser.paired_ttest(ttest_arr[mid], array)
+            ttest_res[iarr] = 1 - ttest_one
+    if len(np.unique(ttest_res)) == 1:
+        ttest_res = [0] * 3
 
+    return data_name, mean_arr, std_arr, ttest_res
 
 
 def to_latex_code(dataset_name, mean_arr, std_arr, ttest_res, type="acc"):
@@ -213,17 +212,26 @@ def to_latex_code(dataset_name, mean_arr, std_arr, ttest_res, type="acc"):
     return line
 
 
+latex_lines = []
 for ek in ["performance", "arms_cand"]:
-    for did in datasets:
+    for ddid, did in enumerate(datasets):
         data_name, mean_arr, std_arr, ttest_arr = \
-            get_mean_curve_value(openml_id=did, extract_key=ek,
-                                 ttest_max=True if ek == "performance" else False,
-                                 max_iter=300,
-                                 sampling_flag=True)
+            get_abl(openml_id=did, extract_key=ek,
+                     ttest_max=True if ek == "performance" else False,
+                     max_iter=300 if ek == "performance" else 300,
+                     sampling_flag=True if ek == "performance" else True)
         # print(mean_arr, std_arr)
-        ll = to_latex_code(dataset_name=str(did), mean_arr=mean_arr, std_arr=std_arr,
+        ll = to_latex_code(dataset_name=data_name, mean_arr=mean_arr, std_arr=std_arr,
                            ttest_res=ttest_arr,
                            type="acc" if ek == "performance" else "ff")
+        if ek == "performance":
+            latex_lines.append(ll)
+        else:
+            latex_lines[ddid] += ll
         print(ll)
         # print("\\hline")
     print(os.linesep)
+
+for lll in latex_lines:
+    print(lll)
+
