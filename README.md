@@ -1,5 +1,7 @@
 ## Dual Active Learning for Both Model and Data Selection
 
+Authors: Anonymous
+
 This work proposes a novel framework of DUal Active Learning (DUAL) to simultaneously perform model search and data selection.
 
 The model search method is implemented based on `auto-sklearn` package, and the `alipy` package is employed to implement the compared data querying strategies.
@@ -15,6 +17,7 @@ The model search method is implemented based on `auto-sklearn` package, and the 
 
 * Hyperparameter spaces are set as the default values of auto-sklearn. (See `autosklearn/pipeline/components/classification` for the specific settings.)
 * The domain discriminator D is implemented by a 3-layer neural network. (See L201 in `algorithm.py`)
+* Complexity order of candidate models for Active-iNAS are defined in L130 in `ALMS.py`
 
 ## Usage
 ### Run DUAL, CASH, ALMS, Active-iNAS methods
