@@ -1,6 +1,8 @@
 ## Dual Active Learning for Both Model and Data Selection
 
-Authors: Anonymous
+Published at IJCAI-21
+
+Authors: Ying-Peng Tang and Sheng-Jun Huang
 
 This work proposes a novel framework of DUal Active Learning (DUAL) to simultaneously perform model search and data selection.
 
@@ -36,7 +38,6 @@ python main.py --dataset 50 --strategy random_cash_successive --save_home /path/
 python pshell.py
 ```
 
-
 ### Run the other compared methods
 
 You must run DUAL first to save the target model, which is searched on initially labeled data. Then the following cmd could be work. (Please set the parameter `tmp_home` inside.)
@@ -45,20 +46,18 @@ You must run DUAL first to save the target model, which is searched on initially
 python compared_methods/baselines.py
 ```
 
-### Run ablation studies
-
-Please set the parameter `save_home` inside pshell_abl.py
+### Please cite our work
 
 ```
-python pshell_abl.py
+Tang, Y.P. and Huang, S.J., 2021. Dual Active Learning for Both Model and Data Selection. In IJCAI (pp. 3052-3058).
 ```
 
-## Reproduce the results
-
-1. Use the data split settings we provide in `reproduce` folder.
-2. Run the active learning procedures with compared methods according to the *Usage* section.
-3. Plot the learning curves with the code in `misc/plot_paper.py`.
-4. Run the ablation studies with `python pshell_abl.py`
-5. Generate the latex content of table 2 and 3 with the code in `misc/table_paper.py`.
-
-
+```
+@inproceedings{tang2021dual,
+  title={Dual Active Learning for Both Model and Data Selection.},
+  author={Tang, Ying-Peng and Huang, Sheng-Jun},
+  booktitle={Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence},
+  pages={3052--3058},
+  year={2021}
+}
+```
